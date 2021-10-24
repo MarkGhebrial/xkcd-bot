@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
-pub struct XkcdBot {
-    title: String,
-    img_url: String,
-    hovertext: String,
+pub struct XkcdComic {
+    pub link: String,
+    pub title: String,
+    pub img_url: String,
+    pub hovertext: String,
 }
 
-impl XkcdBot {
-    pub fn new() -> Result<XkcdBot, Box<dyn std::error::Error>> {
+impl XkcdComic {
+    pub fn get_latest_comic() -> Result<XkcdComic, Box<dyn std::error::Error>> {
         let resp = reqwest::blocking::get("https://xkcd.com/rss.xml")?;
         let resp_text = resp.text()?;
         let resp_bytes = resp_text.as_bytes();
@@ -23,26 +24,23 @@ impl XkcdBot {
             None => {panic!("No title")}
         };
 
+        let link = match &item.link {
+            Some(s) => s,
+            None => {panic!("No link")}
+        };
+
         let description = match &item.description {
             Some(s) => s,
             None => {panic!("No title")}
         };
         let parsed_description = parse_description(description);
         
-        Ok(XkcdBot {
+        Ok(XkcdComic {
+            link: String::from(link),
             title: String::from(title),
             img_url: parsed_description.0,
             hovertext: parsed_description.1,
         })
-    }
-
-    pub fn generate_request(&self, webhook_url: &String) -> reqwest::blocking::RequestBuilder {
-        let mut message = HashMap::new();
-        message.insert(String::from("content"), format_message(&self.title, &self.img_url, &self.hovertext));
-
-        let client = reqwest::blocking::Client::new();
-        client.post(webhook_url)
-            .json(&message)
     }
 }
 
@@ -55,8 +53,4 @@ fn parse_description(description: &String) -> (String, String) {
     let img_url = String::from(captures.get(1).unwrap().as_str());
     let hovertext = String::from(captures.get(2).unwrap().as_str());
     (img_url, hovertext)
-}
-
-fn format_message (title: &String, img_url: &String, hovertext: &String) -> String {
-    format!("**{}**\n{}\n||{}||", title, img_url, hovertext)
 }
