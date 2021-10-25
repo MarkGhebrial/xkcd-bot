@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 pub struct XkcdComic {
     pub link: String,
     pub title: String,
