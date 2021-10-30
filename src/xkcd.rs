@@ -1,3 +1,5 @@
+use super::discord::DiscordFormatable;
+
 pub struct XkcdComic {
     pub link: String,
     pub title: String,
@@ -39,6 +41,11 @@ impl XkcdComic {
             img_url: parsed_description.0,
             hovertext: parsed_description.1,
         })
+    }
+}
+impl DiscordFormatable for XkcdComic {
+    fn get_content(&self) -> String {
+        format!("**{}**\n{}\n||{}||", &self.title, &self.img_url, &self.hovertext)
     }
 }
 
