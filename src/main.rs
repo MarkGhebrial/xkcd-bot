@@ -3,10 +3,12 @@ mod discord;
 
 use xkcd::*;
 use discord::*;
-
+use std::env;
 
 fn main() {
-    let url = String::from("https://discord.com/api/webhooks/902015970128826408/G2I4nfh6Ztgze2qy7uA9gmIAgovjf8uccDrmSm-8C2yUnlWYlBk0UQBdM1zY12A-n9RJ");
+    let url = env::var("DISCORD_WEBHOOK_URL")
+        .expect("Please set the url for the webhook in the DISCORD_WEBHOOK_URL enviroment variable");
+
     let webhook = DiscordWebhook::new(&url);
     let comic = XkcdComic::get_latest_comic().unwrap();
 
